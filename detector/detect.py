@@ -1,6 +1,6 @@
 # load config
 import json
-with open('balldetection_config.json') as f:
+with open('detect_config.json') as f:
     config = json.load(f)
 
     ROBOFLOW_API_KEY = config["ROBOFLOW_API_KEY"]

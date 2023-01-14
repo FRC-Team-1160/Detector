@@ -1,8 +1,8 @@
-import ball_detection
+import detect
 import cv2 as cv
 import time
 
-stream = cv.VideoCapture(0)
+stream = cv.VideoCapture(1)
 
 while 1:
     # On "q" keypress twice, exit
@@ -13,7 +13,7 @@ while 1:
     start = time.time()
 
     ret, img = stream.read()
-    image = ball_detection.infer(img)
+    image = detect.infer(img)
     cv.imshow('image', image)
 
     # Print frames per second
