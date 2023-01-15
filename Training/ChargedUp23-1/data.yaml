@@ -1,0 +1,13 @@
+train: /Users/brianchen/Desktop/Collection&Training/ChargedUp23-1/train/images
+val: /Users/brianchen/Desktop/Collection&Training/ChargedUp23-1/valid/images
+test: /Users/brianchen/Desktop/Collection&Training/ChargedUp23-1/test/images
+
+nc: 1
+names: ['cone']
+
+roboflow:
+  workspace: smhs-frc-1160
+  project: chargedup23
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/smhs-frc-1160/chargedup23/dataset/1
