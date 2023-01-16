@@ -1,6 +1,6 @@
-train: /Users/brianchen/Desktop/Collection&Training/ChargedUp23-1/train/images
-val: /Users/brianchen/Desktop/Collection&Training/ChargedUp23-1/valid/images
-test: /Users/brianchen/Desktop/Collection&Training/ChargedUp23-1/test/images
+train: /Users/brianchen/Desktop/Detector/Training/ChargedUp23-1/test/images
+val: /Users/brianchen/Desktop/Detector/Training/ChargedUp23-1/test/images
+test: /Users/brianchen/Desktop/Detector/Training/ChargedUp23-1/test/images
 
 nc: 1
 names: ['cone']
