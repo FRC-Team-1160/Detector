@@ -1,56 +1,38 @@
-# load config
-import json
-with open('detect_config.json') as f:
-    config = json.load(f)
-
-    ROBOFLOW_API_KEY = config["ROBOFLOW_API_KEY"]
-    ROBOFLOW_MODEL = config["ROBOFLOW_MODEL"]
-    ROBOFLOW_SIZE = config["ROBOFLOW_SIZE"]
-
-    FRAMERATE = config["FRAMERATE"]
-    BUFFER = config["BUFFER"]
-
-from roboflow import Roboflow
-import cv2 as cv
-import base64
+from ultralytics import YOLO
+import cv2
+from imageai.Detection import ObjectDetection
+import torch
+import time
 import numpy as np
-import requests
 
+# model = ObjectDetection()
+# model.setModelTypeAsYOLOv3()
+# model.setModelPath(r"../runs/detect/train/weights/best.pt")
+# model.loadModel()
+model = YOLO("../runs/detect/train2/weights/best.pt")
 
+stream = cv2.VideoCapture(1)
+stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
 
-upload_url = "".join([
-    "https://detect.roboflow.com/",
-    ROBOFLOW_MODEL,
-    "?api_key=",
-    ROBOFLOW_API_KEY,
-    "&format=image",
-    "&stroke=5"
-])
+def detect(CAM_ID):
+    result = model.predict(source=CAM_ID, show=True)
 
-def infer(img):
-    # Get the current image from the webcam
-    # ret, img = video.read()
+# DETECTING EVERY FRAME USING OPENCV 
 
-    # Resize (while maintaining the aspect ratio) to improve speed and save bandwidth
-    height, width, channels = img.shape
-    scale = ROBOFLOW_SIZE / max(height, width)
-    img = cv.resize(img, (round(scale * width), round(scale * height)))
+# while True:    
+#     ret, img = stream.read()   
+#     # img = cv2.imread(img)
+#     # print(type(img))
+#     # img = np.array(img)
+#     # result = model.predict(source=img)
+#     result = model(source=img, return_outputs=True, show=True)
 
-    # Encode image to base64 string
-    retval, buffer = cv.imencode('.jpg', img)
-    img_str = base64.b64encode(buffer)
+#     cv2.imshow("", result)     
+    
+#     if (cv2.waitKey(1) & 0xFF == ord("q")) or (cv2.waitKey(1)==27):
+#         break
 
-    # Get prediction from Roboflow Infer API
-    resp = requests.post(upload_url, data=img_str, headers={
-        "Content-Type": "application/x-www-form-urlencoded"
-    }, stream=True).raw
-
-    # Parse result image
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    image = cv.imdecode(image, cv.IMREAD_COLOR)
-
-    return image
-
-# infer on an image hosted elsewhere
-# print(model.predict("URL_OF_YOUR_IMAGE", hosted=True, confidence=40, overlap=30).json())
+# stream.release()
+# cv2.destroyAllWindows()
 
