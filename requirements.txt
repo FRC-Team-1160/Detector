@@ -3,3 +3,5 @@ opencv-python
 ultralytics
 imageai
 torch
+scikit-image
+filterpy
