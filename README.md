@@ -9,7 +9,7 @@ MAKE SURE TO ACTIVATE THE ENVIRONMENT!
 ## Install required packages
 Make sure to install pip package manager [here](https://pip.pypa.io/en/stable/installation/).
 ```
-pip3 install requirements.txt
+pip3 install -r requirements.txt
 ```
 ## Usage
 ### Roboflow API Inference
