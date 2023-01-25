@@ -18,40 +18,32 @@ class Detector:
     def __init__(self):
         self.model = YOLO("../runs/detect/train2/weights/best.pt")
         self.result = None
-        self.streamWidth = 640
-        self.streamHeight = 640
         self.status = False
     
     #CONFIG METHODS
 
-    #sets the size of the stream window. default window is 640x640
-    def setWindow(self, width=640, height=640):
-        if self.status:
-            raise Exception("Cannot change the window while detection is active")
-        self.streamWidth = width
-        self.streamHeight = height
-
     #DETECTION METHODS
 
     #runs the detector
-    def detect(self, CAM_ID):
+    def detect(self, img):
+
         self.status = True
-        stream = cv2.VideoCapture(CAM_ID)
-        stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.streamWidth)
-        stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.streamHeight)
-        while True:
-            ret, img = stream.read()   
+        # stream = cv2.VideoCapture(CAM_ID)
+        # stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.streamWidth)
+        # stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.streamHeight)
+        # while True:
+            # ret, img = stream.read()   
             # img = cv2.imread(img)
             # print(type(img))
             # result = model.predict(source=img)
             # img = cv2.imread('/Users/brianchen/Desktop/Detector/Training/ChargedUp23-1/test/images/cone-0affa018-9080-11ed-a834-709cd1141cab_jpg.rf.0a113aa1bd9f8f5f630a777989b573a1.jpg')
-            self.result = self.model.predict(source=img, show=True)
+        self.result = self.model.predict(source=img, show=True)
             #print(getCentroid(result=result))
             # cv2.imshow("", result)
-            if (cv2.waitKey(1) & 0xFF == ord("q")) or (cv2.waitKey(1)==27) or (not self.status):
-                break
-        stream.release()
-        cv2.destroyAllWindows()
+        #     if (cv2.waitKey(1) & 0xFF == ord("q")) or (cv2.waitKey(1)==27) or (not self.status):
+        #         break
+        # stream.release()
+        # cv2.destroyAllWindows()
     
     #stops the detector
     def stop(self):
@@ -75,7 +67,7 @@ class Detector:
     def getCentroid(self):
         if not self.status:
             raise Exception("Can only retrieve information if detection is active")
-        coor = self.getCoor(result=self.result)
+        coor = self.getCoor()
         if len(coor) == 0:
             return 0,0
         else:
@@ -87,7 +79,33 @@ class Detector:
             centrY = y1 + (y2-y1)/2
             return centrX, centrY
     
+class Frame:
+    def __init__(self, CAM_ID) -> None:
+        # check if CAM_ID is an integer
+        if not isinstance(CAM_ID, int): 
+            raise Exception("CAM_ID must be an integer")
 
+        self.stream = cv2.VideoCapture(CAM_ID)
+        self.streamWidth = 640
+        self.streamHeight = 640
+
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.streamWidth)
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.streamHeight)
+    
+    def getFrame(self):
+        ret, frame = self.stream.read()
+        return frame
+
+    # CONFIG METHODS
+    
+    #sets the size of the stream window. default window is 640x640
+    def setWindow(self, width=640, height=640):
+        if self.status:
+            raise Exception("Cannot change the window while detection is active")
+        self.streamWidth = width
+        self.streamHeight = height
+    
+    
 
 # DETECTING EVERY FRAME USING OPENCV 
 
