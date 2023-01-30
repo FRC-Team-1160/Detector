@@ -7,6 +7,7 @@ import time
 import numpy as np
 from PIL import Image
 from matplotlib import cm
+from sys import platform
 
 # model = ObjectDetection()
 # model.setModelTypeAsYOLOv3()
@@ -16,7 +17,7 @@ from matplotlib import cm
 
 #the detector object
 class Detector:
-    def __init__(self, model_url, gpu=False):
+    def __init__(self, model_url, gpu=False, conf=0.5):
         self.model = YOLO(model_url)
         self.result = None
         self.status = False
@@ -24,10 +25,16 @@ class Detector:
         self.exeTime = 0;
         self.height_mapping = {'cone': 0.33, 'cube': 0.24} # cone is 13 inches, cube is 8 + 3/8
         if gpu:
-            self.device = 'mps'
+            if platform == "darwin":
+                # OS X
+                self.device = 'mps'
+            else:
+                self.device = 0
+
         else:
             self.device = 'cpu'
         self.screen_height = 640
+        self.confidence = conf # confidence threshold 
         
     
     #CONFIG METHODS
@@ -48,7 +55,7 @@ class Detector:
             # result = model.predict(source=img)
             # img = cv2.imread('/Users/brianchen/Desktop/Detector/Training/ChargedUp23-1/test/images/cone-0affa018-9080-11ed-a834-709cd1141cab_jpg.rf.0a113aa1bd9f8f5f630a777989b573a1.jpg')
         startTime = round(time.time()*1000)
-        self.result = self.model.predict(source=img, show=True, device=self.device)
+        self.result = self.model.predict(source=img, show=True, device=self.device, conf=self.confidence)
         endTime = round(time.time()*1000)
         self.exeTime = endTime - startTime
             #print(getCentroid(result=result))
