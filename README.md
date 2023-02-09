@@ -9,7 +9,7 @@ MAKE SURE TO ACTIVATE THE ENVIRONMENT!
 ## Install required packages
 Make sure to install pip package manager [here](https://pip.pypa.io/en/stable/installation/).
 ```
-pip3 install requirements.txt
+pip3 install -r requirements.txt
 ```
 ## Usage
 ### Roboflow API Inference
@@ -24,13 +24,26 @@ cv2.imshow(result)
 ### YOlOv8 Inference 
 Using the model trained by yolov8 to make predictions 
 ```
-import detect
-import cv2
+from detector import Detector
+from detector import Frame
 
-detect.detect('0') # Put the camera ID in single quotation mark (char)
+detector = Detector("model_path",gpu=False) # choose to use CUDA GPU
+frame = Frame("CAM_ID(usually 0)", verticalFOV="field of view of the camera" ) # field of view can be found online.
+
+while True:
+    img = frame.getFrame()
+    detector.detect(img)
 ```
+#### Find the distance of the object
+```
+while True:
+    img = frame.getFrame()
+    detector.detect(img)
+	dis = detector.getDistance(frame=frame)
+```
+
 ### Using a different model
-Change the path of line 12 in detect.py to the path of the model
+Change the path of the model when creating detector object
 
 ## Training the model **(Google Colab or Nvidia GPU only!)**
 1. Open Training/train_yolov8_object_detection.ipynb
