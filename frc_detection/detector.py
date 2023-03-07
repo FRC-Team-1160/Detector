@@ -17,10 +17,11 @@ from sys import platform
 
 #the detector object
 class Detector:
-    def __init__(self, model_url, gpu=False, conf=0.5):
+    def __init__(self, model_url, gpu=False, conf=0.5, show=False):
         self.model = YOLO(model_url)
         self.result = None
         self.status = False
+        self.show = show
         self.label_mapping = {0: "cone", 1: "cube"}
         self.exeTime = 0;
         self.height_mapping = {'cone': 0.33, 'cube': 0.24} # cone is 13 inches, cube is 8 + 3/8
@@ -55,9 +56,12 @@ class Detector:
             # result = model.predict(source=img)
             # img = cv2.imread('/Users/brianchen/Desktop/Detector/Training/ChargedUp23-1/test/images/cone-0affa018-9080-11ed-a834-709cd1141cab_jpg.rf.0a113aa1bd9f8f5f630a777989b573a1.jpg')
         startTime = round(time.time()*1000)
-        self.result = self.model.predict(source=img, show=True, device=self.device, conf=self.confidence)
+        self.result = self.model.predict(source=img, show=self.show, device=self.device, conf=self.confidence)
         endTime = round(time.time()*1000)
         self.exeTime = endTime - startTime
+        # plot the predicted image
+        image = self.result[0].plot()
+        return image
             #print(getCentroid(result=result))
             # cv2.imshow("", result)
         #     if (cv2.waitKey(1) & 0xFF == ord("q")) or (cv2.waitKey(1)==27) or (not self.status):
@@ -144,7 +148,21 @@ class Detector:
                 dis = float((h*a)/(b * math.tan(theta)))
                 result.append(dis)
             return result
-
+        
+    def isKnockedOver(self):
+        coor, obj_type = self.getCoor()
+        if len(coor) == 0:
+            return None
+        else:
+            x1 = coor[0][0]
+            y1 = coor[0][1]
+            x2 = coor[0][2]
+            y2 = coor[0][3]
+            width = abs(x2 - x1)
+            height = abs(y1 - y2)
+            if height < width:
+                return True
+            return False
 
     
 class Frame:
