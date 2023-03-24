@@ -84,7 +84,7 @@ class Detector:
         if not self.status:
             raise Exception("Can only retrieve information if detection is active")
         obj = self.result[0]
-        coor = obj.boxes.xyxy
+        coor = obj.boxes.xyxy 
 
         # Getting object type
         if len(obj.boxes.cls) == 0:
@@ -148,6 +148,10 @@ class Detector:
                 dis = float((h*a)/(b * math.tan(theta)))
                 result.append(dis)
             return result
+    def boundingBoxHeight(self):        
+        coor, obj_type = self.getCoor()
+        height = coor[0][3] - coor[0][1]
+        return height
         
     def isKnockedOver(self):
         coor, obj_type = self.getCoor()
