@@ -125,14 +125,15 @@ class Detector:
         return self.exeTime
     
     def getDistance(self, frame):
-        streamHeight = frame.getStreamHeight()
-        theta = math.radians(frame.getVerticalFOV())
 
         coor, obj_type = self.getCoor()
         if len(coor) == 0:
-            return [0]
+            return [0],[0]
         else:
-            result = []
+            result1 = []
+            result2 = []
+            distanceMeters = 0
+            horizontalMeters = 0
             for i in range(len(coor)):
                 obj_type = self.label_mapping[int((self.result[0].boxes.cls)[i])]
                 x1 = coor[i][0]
@@ -141,13 +142,19 @@ class Detector:
                 y2 = coor[i][3]
 
                 # calculate distance
-                a = self.height_mapping[obj_type]
-                b = y2 - y1
-                h = streamHeight
-
-                dis = float((h*a)/(b * math.tan(theta)))
-                result.append(dis)
-            return result
+                offset = (x1+(x2-x1)/2) - frame.getStreamCenter()
+                boxHeight = y2 - y1
+                if (obj_type == "cone"):
+                    distanceMeters = (216.08/boxHeight) + 0.118701
+                    horizontalMeters = -0.00170818 - 0.000239721*offset - 0.0105907*distanceMeters - 0.0000007*(offset*offset) + 0.00894884*(distanceMeters*distanceMeters) + 0.00163126*offset*distanceMeters - 0.00168379*(distanceMeters*distanceMeters*distanceMeters) - 0.0000004*(offset*offset*distanceMeters) - 0.0000349971*(offset*distanceMeters*distanceMeters)
+                elif (obj_type == "cube"):
+                    distanceMeters = (165.54/boxHeight) + -0.0664606
+                    horizontalMeters = -0.00170818 - 0.000239721*offset - 0.0105907*distanceMeters - 0.0000007*(offset*offset) + 0.00894884*(distanceMeters*distanceMeters) + 0.00163126*offset*distanceMeters - 0.00168379*(distanceMeters*distanceMeters*distanceMeters) - 0.0000004*(offset*offset*distanceMeters) - 0.0000349971*(offset*distanceMeters*distanceMeters)
+                else:
+                    return [0],[0]
+                result1.append(horizontalMeters)
+                result2.append(distanceMeters)
+            return result1, result2
     def boundingBoxHeight(self):        
         coor, obj_type = self.getCoor()
         height = coor[0][3] - coor[0][1]
