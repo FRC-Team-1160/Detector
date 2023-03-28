@@ -7,11 +7,11 @@ import sys
 from networktables import NetworkTables
 
 # TEST FOR YOLO INFERENCE
-detector = Detector("/home/titanium1160/Detector/runs/detect/train6/weights/best.pt", gpu=False)
+detector = Detector("/home/titanium1160/Detector/runs/detect/train7/weights/best.pt", gpu=True)
 # detector = Detector("/Users/brianchen/Desktop/Detector/runs/detect/train2/weights/model_scripted.pt", gpu=False)
 # model = load_model("/Users/brianchen/Desktop/Detector/runs/detect/train2/weights")
 # detector = Detector(model_url=model)
-frame = Frame(1, verticalFOV=47.5 )
+frame = Frame(0, verticalFOV=47.5 )
 NetworkTables.initialize(server="roborio-1160-frc.local")
 table = NetworkTables.getTable("vision")
 
@@ -24,7 +24,7 @@ while True:
 	stream_height = frame.getStreamHeight()
 	coor = detector.getCentroid()
 	ofst, dis = detector.getDistance(frame=frame)
-	table.putStringArray("offset", ofset)
+	table.putStringArray("offset", ofst)
 	table.putStringArray("distance", dis)
 	if(len(coor) == 1):
 		print(coor[0][2], ": (",ofst[0], ", ", dis[0], ")", detector.getExeTime(), end='\r')

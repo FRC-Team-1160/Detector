@@ -1,7 +1,6 @@
 import math
 from ultralytics import YOLO
 import cv2
-from imageai.Detection import ObjectDetection
 import torch
 import time
 import numpy as np
@@ -23,7 +22,7 @@ class Detector:
         self.status = False
         self.show = show
         self.label_mapping = {0: "cone", 1: "cube"}
-        self.exeTime = 0;
+        self.exeTime = 0
         self.height_mapping = {'cone': 0.33, 'cube': 0.24} # cone is 13 inches, cube is 8 + 3/8
         if gpu:
             if platform == "darwin":
@@ -136,10 +135,10 @@ class Detector:
             horizontalMeters = 0
             for i in range(len(coor)):
                 obj_type = self.label_mapping[int((self.result[0].boxes.cls)[i])]
-                x1 = coor[i][0]
-                y1 = coor[i][1]
-                x2 = coor[i][2]
-                y2 = coor[i][3]
+                x1 = coor[i][0].item()
+                y1 = coor[i][1].item()
+                x2 = coor[i][2].item()
+                y2 = coor[i][3].item()
 
                 # calculate distance
                 offset = (x1+(x2-x1)/2) - frame.getStreamCenter()
@@ -194,6 +193,9 @@ class Frame:
     
     def getStreamHeight(self):
         return self.streamHeight
+    
+    def getStreamCenter(self):
+        return self.streamWidth/2;
     
     def getVerticalFOV(self):
         return self.verticalFOV
