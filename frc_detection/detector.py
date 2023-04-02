@@ -1,7 +1,6 @@
 import math
 from ultralytics import YOLO
 import cv2
-from imageai.Detection import ObjectDetection
 import torch
 import time
 import numpy as np
@@ -23,7 +22,7 @@ class Detector:
         self.status = False
         self.show = show
         self.label_mapping = {0: "cone", 1: "cube"}
-        self.exeTime = 0;
+        self.exeTime = 0
         self.height_mapping = {'cone': 0.33, 'cube': 0.24} # cone is 13 inches, cube is 8 + 3/8
         if gpu:
             if platform == "darwin":
@@ -84,7 +83,7 @@ class Detector:
         if not self.status:
             raise Exception("Can only retrieve information if detection is active")
         obj = self.result[0]
-        coor = obj.boxes.xyxy
+        coor = obj.boxes.xyxy 
 
         # Getting object type
         if len(obj.boxes.cls) == 0:
@@ -125,29 +124,40 @@ class Detector:
         return self.exeTime
     
     def getDistance(self, frame):
-        streamHeight = frame.getStreamHeight()
-        theta = math.radians(frame.getVerticalFOV())
 
         coor, obj_type = self.getCoor()
         if len(coor) == 0:
-            return [0]
+            return [0],[0]
         else:
-            result = []
+            result1 = []
+            result2 = []
+            distanceMeters = 0
+            horizontalMeters = 0
             for i in range(len(coor)):
                 obj_type = self.label_mapping[int((self.result[0].boxes.cls)[i])]
-                x1 = coor[i][0]
-                y1 = coor[i][1]
-                x2 = coor[i][2]
-                y2 = coor[i][3]
+                x1 = coor[i][0].item()
+                y1 = coor[i][1].item()
+                x2 = coor[i][2].item()
+                y2 = coor[i][3].item()
 
                 # calculate distance
-                a = self.height_mapping[obj_type]
-                b = y2 - y1
-                h = streamHeight
-
-                dis = float((h*a)/(b * math.tan(theta)))
-                result.append(dis)
-            return result
+                offset = (x1+(x2-x1)/2) - frame.getStreamCenter()
+                boxHeight = y2 - y1
+                if (obj_type == "cone"):
+                    distanceMeters = (216.08/boxHeight) + 0.118701
+                    horizontalMeters = -0.00170818 - 0.000239721*offset - 0.0105907*distanceMeters - 0.0000007*(offset*offset) + 0.00894884*(distanceMeters*distanceMeters) + 0.00163126*offset*distanceMeters - 0.00168379*(distanceMeters*distanceMeters*distanceMeters) - 0.0000004*(offset*offset*distanceMeters) - 0.0000349971*(offset*distanceMeters*distanceMeters)
+                elif (obj_type == "cube"):
+                    distanceMeters = (165.54/boxHeight) + -0.0664606
+                    horizontalMeters = -0.00170818 - 0.000239721*offset - 0.0105907*distanceMeters - 0.0000007*(offset*offset) + 0.00894884*(distanceMeters*distanceMeters) + 0.00163126*offset*distanceMeters - 0.00168379*(distanceMeters*distanceMeters*distanceMeters) - 0.0000004*(offset*offset*distanceMeters) - 0.0000349971*(offset*distanceMeters*distanceMeters)
+                else:
+                    return [0],[0]
+                result1.append(horizontalMeters)
+                result2.append(distanceMeters)
+            return result1, result2
+    def boundingBoxHeight(self):        
+        coor, obj_type = self.getCoor()
+        height = coor[0][3] - coor[0][1]
+        return height
         
     def isKnockedOver(self):
         coor, obj_type = self.getCoor()
@@ -183,6 +193,9 @@ class Frame:
     
     def getStreamHeight(self):
         return self.streamHeight
+    
+    def getStreamCenter(self):
+        return self.streamWidth/2;
     
     def getVerticalFOV(self):
         return self.verticalFOV
