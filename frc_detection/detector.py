@@ -127,7 +127,7 @@ class Detector:
 
         coor, obj_type = self.getCoor()
         if len(coor) == 0:
-            return [0],[0]
+            return -1,-1
         else:
             result1 = []
             result2 = []
@@ -150,10 +150,13 @@ class Detector:
                     distanceMeters = (165.54/boxHeight) + -0.0664606
                     horizontalMeters = -0.00170818 - 0.000239721*offset - 0.0105907*distanceMeters - 0.0000007*(offset*offset) + 0.00894884*(distanceMeters*distanceMeters) + 0.00163126*offset*distanceMeters - 0.00168379*(distanceMeters*distanceMeters*distanceMeters) - 0.0000004*(offset*offset*distanceMeters) - 0.0000349971*(offset*distanceMeters*distanceMeters)
                 else:
-                    return [0],[0]
+                    return -1,-1
                 result1.append(horizontalMeters)
                 result2.append(distanceMeters)
-            return result1, result2
+            # return the distances of the closest object
+            minDistance = min(result2)
+            minHorizontal = result1[result2.index(minDistance)]
+            return minHorizontal, minDistance
     def boundingBoxHeight(self):        
         coor, obj_type = self.getCoor()
         height = coor[0][3] - coor[0][1]
@@ -182,6 +185,7 @@ class Frame:
             raise Exception("CAM_ID must be an integer")
 
         self.stream = cv2.VideoCapture(CAM_ID)
+        self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
         self.streamWidth = streamWidth
         self.streamHeight = streamHeight
